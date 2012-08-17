@@ -93,6 +93,12 @@ The structure of a setup script has two parts:
   Additional Step types can be defined by modules using hook_setup_info().
 
 
+Once you've configured your Setup script you need to set the source and put the
+site into Setup mode. This can be done on the Maintenance mode settings page
+(admin/config/developnent/maintenance) or done programatically (see the Setup
+example module for an example).
+
+
 
 Options
 --------------------------------------------------------------------------------
@@ -213,7 +219,7 @@ Options
 
   By default the Setup comes with one style, drupalsetup, which is based on the
   Drupal installation theme, but additional styles may be added in the future or
-  alternatively you can define your own with hook_setup_style_info().
+  alternatively you can define your own with hook_setup_styles().
 
 
       setup[options][style] = drupalapi
@@ -382,4 +388,3 @@ TODO / Roadmap
 --------------------------------------------------------------------------------
 
 - Finish/fix 'Node Edit' type.
-- Implement and document hook_setup_style_info().

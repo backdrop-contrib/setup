@@ -71,10 +71,11 @@ function setup_preprocess_page(&$vars) {
       ));
     }
 
-    // Get Setup options.
+    // Attach the Setup style.
     $options = setup_options();
-    if ($options['style']) {
-      drupal_add_css(drupal_get_path('module', 'setup') . "/styles/{$options['style']}/{$options['style']}.css");
+    $styles = setup_styles();
+    if ($options['style'] && in_array($options['style'], array_keys($styles))) {
+      drupal_process_attached(array('#attached' => $styles[$options['style']]));
     }
   }
 }
@@ -448,6 +449,17 @@ function setup_info() {
 }
 
 /**
+ * Helper function; Returns all implementations of hook_setup_styles().
+ */
+function setup_styles() {
+  $styles = &drupal_static(__FUNCTION__);
+  if (empty($styles)) {
+    $styles = module_invoke_all('setup_styles');
+  }
+  return $styles;
+}
+
+/**
  * Helper function; Returns all available sources.
  */
 function setup_sources($grouped = FALSE) {
@@ -565,12 +577,12 @@ function setup_options($info = array()) {
       'finish_disable' => FALSE,
       'finish_message' => FALSE,
       'finish_redirect' => '<front>',
+      'maintenance_mode' => TRUE,
       'show_back' => TRUE,
       'show_cancel' => TRUE,
       'show_steps' => TRUE,
       'style' => 'drupalsetup',
       'style_override' => 'theme',
-      'maintenance_mode' => TRUE,
     );
 
     // Merge defined and default options.
