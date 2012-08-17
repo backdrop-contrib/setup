@@ -1,0 +1,5 @@
+name = Setup
+description = @TODO
+core = 7.x
+configure = admin/config/development/maintenance
+dependencies[] = ctools
