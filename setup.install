@@ -1,0 +1,13 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Setup module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function setup_uninstal() {
+  variable_del('setup_enabled');
+  variable_del('setup_source');
+}

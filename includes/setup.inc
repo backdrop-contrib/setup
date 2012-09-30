@@ -12,13 +12,16 @@ function setup_setup_styles() {
 
   // Drupal install.php inspired style.
   $styles['drupalsetup'] = array(
+    '#name' => t('DrupalSetup'),
     'css' => array(
       drupal_get_path('module', 'setup') . '/styles/drupalsetup/drupalsetup.css',
     ),
   );
 
   // Empty style.
-  $styles['none'] = array();
+  $styles['none'] = array(
+    '#name' => t('- None -'),
+  );
 
   return $styles;
 }

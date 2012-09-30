@@ -171,7 +171,7 @@ function setup_form_alter(&$form, $form_state, $form_id) {
 function setup_wizard() {
   // @TODO - Do this better so that it uses a proper Access Callback and doesn't
   // use the custom theme.
-  if (!setup_enabled() && !user_access('defer setup')) {
+  if (!setup_enabled() && !user_access('access setup')) {
     drupal_not_found();
     return;
   }
@@ -513,8 +513,8 @@ function setup_sources($grouped = FALSE) {
 /**
  * Helper function; Returns setup info from current source.
  */
-function setup_source_info() {
-  $source = explode('-', variable_get('setup_source', 'profile'));
+function setup_source_info($source = NULL) {
+  $source = explode('-', is_null($source) ? variable_get('setup_source', 'profile') : $source);
   switch ($source[0]) {
     case 'profile':
       $info = system_get_info('module', $GLOBALS['conf']['install_profile']);
@@ -560,13 +560,13 @@ function setup_enabled() {
 /**
  * Helper function; Returns Setup options.
  */
-function setup_options($info = array()) {
+function setup_options($info = array(), $source = NULL) {
   $options = &drupal_static(__FUNCTION__);
 
   if (empty($options)) {
     // Load profile info if info not supplied.
     if (empty($info)) {
-      $info = setup_source_info();
+      $info = setup_source_info($source);
     }
 
     // Set default options.

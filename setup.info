@@ -1,5 +1,5 @@
 name = Setup
-description = @TODO
+description = Allows for first-run setup scripts for your module/profile/theme
 core = 7.x
 configure = admin/config/development/maintenance
 dependencies[] = ctools
