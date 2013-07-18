@@ -4,6 +4,7 @@ Setup 7.x-1.x-dev, xxxx-xx-xx (development release)
 - #1784044: Fixed permission error.
 - Added hook_uninstall() implementation.
 - Added Admin module supression implementation.
+- Added 'theme' option.
 
 
 

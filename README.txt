@@ -248,6 +248,16 @@ Options
 
 
 
+* `theme`
+
+  A Drupal theme to use when in the Setup wizard.
+
+
+
+      setup[options][theme] = seven
+
+
+
 Steps
 --------------------------------------------------------------------------------
 

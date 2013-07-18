@@ -35,6 +35,17 @@ function setup_init() {
 }
 
 /**
+ * Implements hook_custom_theme().
+ */
+function setup_custom_theme() {
+  if ('setup' == arg(0) && ($source_info = setup_source_info())) {
+    if (isset($source_info['options']['theme'])) {
+      return $source_info['options']['theme'];
+    }
+  }
+}
+
+/**
  * Implements hook_theme().
  */
 function setup_theme($existing, $type, $theme, $path) {
@@ -518,6 +529,9 @@ function setup_source_info($source = NULL) {
   switch ($source[0]) {
     case 'profile':
       $info = system_get_info('module', $GLOBALS['conf']['install_profile']);
+      if (!isset($info['setup'])) {
+        return FALSE;
+      }
       $info = $info['setup'];
       break;
 
@@ -526,12 +540,18 @@ function setup_source_info($source = NULL) {
         return FALSE;
       }
       $info = system_get_info('module', $source[1]);
+      if (!isset($info['setup'])) {
+        return FALSE;
+      }
       $info = $info['setup'];
       break;
 
     case 'theme':
       $source[1] = !isset($source[1]) || $source[1] == 'default' ? variable_get('theme_default', NULL) : $source[1];
       $info = system_get_info('theme', $source[1]);
+      if (!isset($info['setup'])) {
+        return FALSE;
+      }
       $info = $info['setup'];
       break;
 
@@ -539,7 +559,27 @@ function setup_source_info($source = NULL) {
       $info = module_invoke_all('setup_source_info', $source);
   }
 
-  return !empty($info) ? $info : FALSE;
+  if (!empty($info)) {
+    _setup_source_info_token_replace($info);
+    return $info;
+  }
+  return FALSE;
+}
+
+/**
+ * Recursively run token_replace() on $info.
+ */
+function _setup_source_info_token_replace(&$info) {
+  switch (TRUE) {
+    case is_array($info):
+      foreach (element_children($info) as $child) {
+        _setup_source_info_token_replace($info[$child]);
+      }
+      break;
+
+    default:
+      $info = token_replace($info);
+  }
 }
 
 /**

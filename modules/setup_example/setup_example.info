@@ -4,6 +4,7 @@ core = 7.x
 dependencies[] = setup
 
 ; Setup wizard
+setup[options][theme] = seven
 setup[options][finish_message] = Setup Example is complete.
 
 setup[steps][intro][type] = markup
