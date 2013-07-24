@@ -88,6 +88,11 @@ function setup_preprocess_page(&$vars) {
     if ($options['style'] && in_array($options['style'], array_keys($styles))) {
       drupal_process_attached(array('#attached' => $styles[$options['style']]));
     }
+
+    // Hide messages.
+    if (!$options['show_messages']) {
+      drupal_get_messages();
+    }
   }
 }
 
@@ -212,7 +217,7 @@ function setup_wizard() {
     'id' => 'setup_wizard',
     'path' => 'setup/%step',
     'show back' => $options['show_back'],
-    'show cancel' => user_access('defer setup') || $options['show_cancel'],
+    'show cancel' => (user_access('defer setup') && $options['show_cancel'] != -1) || $options['show_cancel'] == 1,
     'cancel text' => t('Skip setup'),
     'order' => array(),
     'forms' => array(),
@@ -357,6 +362,11 @@ function setup_wizard_finish(&$form_state) {
   // Take site out of maintenance mode.
   if ($options['maintenance_mode']) {
     variable_set('maintenance_mode', FALSE);
+  }
+
+  // Hide messages.
+  if (!$options['show_messages']) {
+    drupal_get_messages();
   }
 
   // Display a completion message.
@@ -621,6 +631,7 @@ function setup_options($info = array(), $source = NULL) {
       'show_back' => TRUE,
       'show_cancel' => TRUE,
       'show_steps' => TRUE,
+      'show_messages' => TRUE,
       'style' => 'drupalsetup',
       'style_override' => 'theme',
     );

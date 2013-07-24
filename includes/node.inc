@@ -8,16 +8,19 @@
  * Implements hook_setup_info().
  */
 function node_setup_info() {
-  return array(
-    'node_edit' => array(
-      'form callback' => 'node_setup_node_edit_form_callback',
-      'finish callback' => 'node_setup_node_edit_finish_callback',
-    ),
-    'node_view' => array(
-      'form callback' => 'node_setup_node_view_form_callback',
-      'finish callback' => 'node_setup_node_view_finish_callback',
-    ),
+  $info = array();
+
+  $info['node_edit'] = array(
+    'form callback' => 'node_setup_node_edit_form_callback',
+    'finish callback' => 'node_setup_node_edit_finish_callback',
   );
+
+  $info['node_view'] = array(
+    'form callback' => 'node_setup_node_view_form_callback',
+    'finish callback' => 'node_setup_node_view_finish_callback',
+  );
+
+  return $info;
 }
 
 /**

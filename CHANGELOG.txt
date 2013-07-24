@@ -5,6 +5,9 @@ Setup 7.x-1.x-dev, xxxx-xx-xx (development release)
 - Added hook_uninstall() implementation.
 - Added Admin module supression implementation.
 - Added 'theme' option.
+- Added 'show_messages' option.
+- Added 'user_register' step type.
+- Improved 'show_cancel' option.
 
 
 

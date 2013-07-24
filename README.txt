@@ -194,10 +194,24 @@ Options
   Whether to show a 'Skip setup' link during the Setup script, allowing the user
   to cancel the Setup script.
 
-  Expects a boolean value.
+  Expects a numerical value:
+    -  1: Show cancel.
+    -  0: Don't show cancel.
+    - -1: Don't show cancel even if user has 'Defer setup wizard' permission.
 
 
       setup[options][show_cancel] = 1
+
+
+
+* `show_messages`
+
+  Whether to show standard site messages.
+
+  Expects a boolean value.
+
+
+      setup[options][show_messages] = 1
 
 
 
@@ -322,7 +336,7 @@ of the defined step.
     The numerical Node ID for the Node to be rendered.
 
 
-  Provides on optional argument:
+  Provides one optional argument:
 
   - `view_mode`
 
@@ -333,6 +347,32 @@ of the defined step.
       setup[steps][blog_posts][title] = Blog posts
       setup[steps][blog_posts][nid] = 1
       setup[steps][blog_posts][view_mode] = full
+
+
+
+* `user_register`
+
+  Provides the 'user_register' form to create a new user account.
+
+
+  Provides two optional arguments:
+
+  - `hide`
+
+    An array of element keys that should be hidden from the form.
+
+
+  - `switch`
+
+    A boolean value for whether the current user should be switched to the newly
+    created account.
+
+
+      setup[steps][account][type] = user_register
+      setup[steps][account][title] = Account info
+      setup[steps][account][hide] = account[notify]
+      setup[steps][account][hide] = account[status]
+      setup[steps][account][switch] = 1
 
 
 
