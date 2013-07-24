@@ -196,9 +196,6 @@ function setup_wizard() {
 
   // Setup object cache.
   $object_id = 'setup_wizard';
-  if (arg(1) == NULL) {
-    setup_cache_clear($object_id);
-  }
   $object = setup_cache_get($object_id);
   $form_state = array(
     'object_id' => $object_id,
@@ -333,6 +330,10 @@ function setup_wizard_finish(&$form_state) {
   // Invoke Setup wizard Next callback to deal with object cache.
   setup_wizard_next($form_state);
 
+  // Get object from cache.
+  $object_id = 'setup_wizard';
+  $object = setup_cache_get($object_id);
+
   $hooks_info = setup_info();
   $source_info = setup_source_info();
   foreach ($source_info['steps'] as $key => $step) {
@@ -341,17 +342,20 @@ function setup_wizard_finish(&$form_state) {
       if (isset($step['arguments'])) {
         foreach ($step['arguments'] as $argument => $index) {
           $index = explode('[', str_replace(']', '', $index));
-          $step['arguments'][$argument] = drupal_array_get_nested_value($form_state['object'], $index);
+          $step['arguments'][$argument] = drupal_array_get_nested_value($object, $index);
         }
       }
 
       $step_form_state = array(
-        'values' => isset($form_state['object'][$key]) ? $form_state['object'][$key] : array(),
+        'values' => isset($object[$key]) ? $object[$key] : array(),
         'setup_step' => $step,
       );
       $hooks_info[$step['type']]['finish callback']($step_form_state);
     }
   }
+
+  // Clear object cache.
+  setup_cache_clear($object_id);
 
   // Disable setup run flag.
   variable_set('setup_enabled', FALSE);

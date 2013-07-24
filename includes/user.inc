@@ -20,6 +20,8 @@ function user_setup_info() {
 
 /**
  * Form callback for 'User register' method.
+ *
+ * @TODO - Defer the user creation until the finish callback.
  */
 function user_setup_user_register_form_callback($form, &$form_state) {
   $form_id = 'user_register_form';
@@ -56,7 +58,7 @@ function user_setup_user_register_form_callback($form, &$form_state) {
  * Finish callback for 'User register' method.
  */
 function user_setup_user_register_finish_callback(&$form_state) {
-  if (!empty($form_state['setup_step']['switch'])) {
+  if (!empty($form_state['setup_step']['switch']) && isset($form_state['values']['uid'])) {
     global $user;
     $user = user_load($form_state['values']['uid']);
   }
