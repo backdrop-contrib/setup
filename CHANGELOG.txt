@@ -8,6 +8,7 @@ Setup 7.x-1.x-dev, xxxx-xx-xx (development release)
 - Added 'theme' option.
 - Added 'show_messages' option.
 - Added 'user_register' step type.
+- Added Navbar module supression implementation.
 - Improved 'show_cancel' option.
 
 
