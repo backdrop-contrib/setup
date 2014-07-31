@@ -383,6 +383,9 @@ function setup_wizard_finish(&$form_state) {
     module_disable(array('setup'));
   }
 
+  // Invoke hook_setup_finish.
+  module_invoke_all('setup_finish');
+
   // Redirect back to the homepage.
   drupal_goto($options['finish_redirect']);
 }
