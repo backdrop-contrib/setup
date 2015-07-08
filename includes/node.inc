@@ -8,19 +8,16 @@
  * Implements hook_setup_info().
  */
 function node_setup_info() {
-  $info = array();
-
-  $info['node_edit'] = array(
-    'form callback' => 'node_setup_node_edit_form_callback',
-    'finish callback' => 'node_setup_node_edit_finish_callback',
+  return array(
+    'node_edit' => array(
+      'form callback' => 'node_setup_node_edit_form_callback',
+      'finish callback' => 'node_setup_node_edit_finish_callback',
+    ),
+    'node_view' => array(
+      'form callback' => 'node_setup_node_view_form_callback',
+      'finish callback' => 'node_setup_node_view_finish_callback',
+    ),
   );
-
-  $info['node_view'] = array(
-    'form callback' => 'node_setup_node_view_form_callback',
-    'finish callback' => 'node_setup_node_view_finish_callback',
-  );
-
-  return $info;
 }
 
 /**
@@ -32,7 +29,7 @@ function node_setup_node_edit_form_callback($form, &$form_state) {
 
     // Get node form.
     module_load_include('inc', 'node', 'node.pages');
-    $node_form = drupal_get_form($node->type . '_node_form', $node);
+    $node_form = backdrop_get_form($node->type . '_node_form', $node);
     unset($node_form['actions']);
 
     // @TODO - Do a recursive merge so we don't blow away anything important.

@@ -37,7 +37,7 @@ function system_setup_theme_alter(&$items) {
       'description' => TRUE,
     ),
     'template' => 'system.setup_theme',
-    'path' => drupal_get_path('module', 'setup') . '/templates',
+    'path' => backdrop_get_path('module', 'setup') . '/templates',
   );
 }
 
@@ -62,8 +62,8 @@ function system_setup_markup_form_callback($form, &$form_state) {
 function system_setup_theme_form_callback($form, &$form_state) {
   // Add jQuery Cycle integration if available.
   if (module_exists('libraries') && in_array('jquery.cycle', array_keys(libraries_get_libraries()))) {
-    drupal_add_js(libraries_get_path('jquery.cycle') . '/jquery.cycle.all.js');
-    drupal_add_js(drupal_get_path('module', 'setup') . '/scripts/system.theme.js');
+    backdrop_add_js(libraries_get_path('jquery.cycle') . '/jquery.cycle.all.js');
+    backdrop_add_js(backdrop_get_path('module', 'setup') . '/scripts/system.theme.js');
   }
 
   // Get available themes.
@@ -81,7 +81,7 @@ function system_setup_theme_form_callback($form, &$form_state) {
   // Get a Default Value that is in the list of available options.
   $default_value = isset($form_state['object'][$form_state['step']])
     ? $form_state['object'][$form_state['step']]['theme']
-    : variable_get('theme_default', key($available_themes));
+    : config_get('system.core', 'theme_default');
   $default_value = in_array($default_value, array_keys($available_themes)) ? $default_value : key($available_themes);
 
   $form['theme'] = array(
@@ -111,10 +111,10 @@ function system_setup_theme_finish_callback(&$form_state) {
        theme_enable(array($theme));
       }
       // Set the default theme.
-      variable_set('theme_default', $theme);
+      config_set('system.core', 'theme_default', $theme);
 
       // Flush all caches.
-      drupal_flush_all_caches();
+      //backdrop_flush_all_caches();
     }
   }
 }
@@ -126,9 +126,10 @@ function system_setup_variable_set_form_callback($form, &$form_state) {
   foreach ($form_state['setup_step']['variables'] as $key => $variable) {
     $form[$key] = array(
       '#type' => 'textfield',
-      '#default_value' => variable_get($key, NULL),
+      '#default_value' => config_get($variable['config'], $key),
     );
-    drupal_alter('setup_variable_set_form', $form[$key], $key);
+    backdrop_alter('setup_variable_set_form', $form[$key], $key);
+    unset($variable['config']);
     foreach ($variable as $attribute => $value) {
       $form[$key]["#{$attribute}"] = $value;
     }
@@ -141,9 +142,9 @@ function system_setup_variable_set_form_callback($form, &$form_state) {
  * Finish callback for 'Variable set' method.
  */
 function system_setup_variable_set_finish_callback(&$form_state) {
-  foreach (array_keys($form_state['setup_step']['variables']) as $key) {
+  foreach ($form_state['setup_step']['variables'] as $key => $value) {
     if (isset($form_state['values'][$key])) {
-      variable_set($key, $form_state['values'][$key]);
+      config_set($value['config'], $key, $form_state['values'][$key]);
     }
   }
 }

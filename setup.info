@@ -1,5 +1,6 @@
 name = Setup
-description = Allows for first-run setup scripts for your module/profile/theme
-core = 7.x
+description = @TODO
+backdrop = 1.x
+type = module
 configure = admin/config/development/maintenance
-dependencies[] = ctools
+dependencies[] = form_wizard

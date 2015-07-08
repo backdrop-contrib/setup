@@ -20,15 +20,15 @@ and Brian Gilbert (realityloop) of Realityloop Pty Ltd.
 Required modules
 --------------------------------------------------------------------------------
 
-* Chaos tool suite (ctools) - http://drupal.org/project/ctools
+* Chaos tool suite (ctools) - http://backdrop.org/project/ctools
 
 
 
 Recommended modules
 --------------------------------------------------------------------------------
 
-* Libraries                 - http://drupal.org/project/libraries
-* Variable                  - http://drupal.org/project/variable
+* Libraries                 - http://backdrop.org/project/libraries
+* Variable                  - http://backdrop.org/project/variable
 
 
 
@@ -51,18 +51,18 @@ The structure of a setup script has two parts:
 
       setup[options][finish_redirect] = welcome
       setup[options][show_cancel] = 0
-      setup[options][style] = drupalsetup
+      setup[options][style] = backdropsetup
 
 
 
   This will do the following:
 
-  - Redirect to http://[www.yoursite.com/path/to/drupal]/welcome on completion
+  - Redirect to http://[www.yoursite.com/path/to/backdrop]/welcome on completion
     of the Setup script.
 
   - Not show a cancel/skip setup link during the Setup script.
 
-  - Use the 'drupalsetup' Setup style during the Setup script.
+  - Use the 'backdropsetup' Setup style during the Setup script.
 
 
   The available Options can be found below.
@@ -117,7 +117,7 @@ Options
 
 * `cancel_message`
 
-  A message to display to the user via drupal_set_message() upon the
+  A message to display to the user via backdrop_set_message() upon the
   cancellation of the Setup script.
 
 
@@ -148,7 +148,7 @@ Options
 
 * `finish_message`
 
-  A message to display to the user via drupal_set_message() upon the
+  A message to display to the user via backdrop_set_message() upon the
   completion of the Setup script.
 
 
@@ -194,24 +194,10 @@ Options
   Whether to show a 'Skip setup' link during the Setup script, allowing the user
   to cancel the Setup script.
 
-  Expects a numerical value:
-    -  1: Show cancel.
-    -  0: Don't show cancel.
-    - -1: Don't show cancel even if user has 'Defer setup wizard' permission.
-
-
-      setup[options][show_cancel] = 1
-
-
-
-* `show_messages`
-
-  Whether to show standard site messages.
-
   Expects a boolean value.
 
 
-      setup[options][show_messages] = 1
+      setup[options][show_cancel] = 1
 
 
 
@@ -231,12 +217,12 @@ Options
 
   The name of the Setup style to use during the Setup script.
 
-  By default the Setup comes with one style, drupalsetup, which is based on the
-  Drupal installation theme, but additional styles may be added in the future or
+  By default the Setup comes with one style, backdropsetup, which is based on the
+  Backdrop installation theme, but additional styles may be added in the future or
   alternatively you can define your own with hook_setup_styles().
 
 
-      setup[options][style] = drupalapi
+      setup[options][style] = backdropapi
 
 
 
@@ -259,16 +245,6 @@ Options
 
 
       setup[options][style_override] = theme
-
-
-
-* `theme`
-
-  A Drupal theme to use when in the Setup wizard.
-
-
-
-      setup[options][theme] = seven
 
 
 
@@ -336,7 +312,7 @@ of the defined step.
     The numerical Node ID for the Node to be rendered.
 
 
-  Provides one optional argument:
+  Provides on optional argument:
 
   - `view_mode`
 
@@ -347,32 +323,6 @@ of the defined step.
       setup[steps][blog_posts][title] = Blog posts
       setup[steps][blog_posts][nid] = 1
       setup[steps][blog_posts][view_mode] = full
-
-
-
-* `user_register`
-
-  Provides the 'user_register' form to create a new user account.
-
-
-  Provides two optional arguments:
-
-  - `hide`
-
-    An array of element keys that should be hidden from the form.
-
-
-  - `switch`
-
-    A boolean value for whether the current user should be switched to the newly
-    created account.
-
-
-      setup[steps][account][type] = user_register
-      setup[steps][account][title] = Account info
-      setup[steps][account][hide] = account[notify]
-      setup[steps][account][hide] = account[status]
-      setup[steps][account][switch] = 1
 
 
 
@@ -416,8 +366,14 @@ of the defined step.
 
   - `variables`
 
-    A keyed array of FAPI elements, where the key is the name of the variable
-    and any FAPI elements defined on that key are used to generate the form.
+    A keyed array of FAPI elements, where the key is the name of the variable.
+
+    The nested `config` key is a required value for each variable and should
+    provide the name of the configuration file where the variable is to be 
+    saved.
+    
+    Any other values defined on that key are FAPI elements used to generate the 
+    form.
 
     If no FAPI type is set the field will default to a Textfield.
 
@@ -426,11 +382,7 @@ of the defined step.
         setup[steps][info][title] = Site information
         setup[steps][info][variables][site_name][title] = Site name
         setup[steps][info][variables][site_name][required] = 1
-
-
-
-  Note: If you have the Variable module enabled and the variable is defined by
-        hook_variable_info(), default FAPI elements will be provided for you.
+        setup[steps][info][variables][site_name][config] = system.core
 
 
 

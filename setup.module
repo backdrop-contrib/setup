@@ -17,32 +17,21 @@ foreach (module_list() as $module) {
  * Implements hook_init().
  */
 function setup_init() {
-  if (setup_enabled() && in_array(variable_get('setup_source', 'profile'), array_keys(setup_sources()))) {
+  if (setup_enabled() && in_array(config_get('setup.settings', 'setup_source'), array_keys(setup_sources()))) {
     $options = setup_options();
 
     // Put site into maintenance mode.
     if ($options['maintenance_mode']) {
-      variable_set('maintenance_mode', TRUE);
+      config_set('system.core', 'maintenance_enabled', 1);
     }
 
     // Force authorized user to Setup wizard.
     if (setup_init_access()) {
-      drupal_goto('setup');
+      //backdrop_goto('setup');
     }
   }
 
   module_invoke_all('setup_init');
-}
-
-/**
- * Implements hook_custom_theme().
- */
-function setup_custom_theme() {
-  if ('setup' == arg(0) && ($source_info = setup_source_info())) {
-    if (isset($source_info['options']['theme'])) {
-      return $source_info['options']['theme'];
-    }
-  }
 }
 
 /**
@@ -53,12 +42,13 @@ function setup_theme($existing, $type, $theme, $path) {
 
   // Template for Setup pages.
   $items['setup'] = array(
-    'template' => 'setup',
-    'path' => drupal_get_path('module', 'setup') . '/templates',
+    'template' => 'templates/setup',
+    'variables' => array('wizard' => NULL),
+    //'path' => backdrop_get_path('module', 'setup') . '/templates',
   );
 
   // Allow other modules to modify theme items.
-  drupal_alter('setup_theme', $items);
+  backdrop_alter('setup_theme', $items);
 
   return $items;
 }
@@ -66,34 +56,35 @@ function setup_theme($existing, $type, $theme, $path) {
 /**
  * Implements hook_preprocess_page().
  */
-function setup_preprocess_page(&$vars) {
-  if (arg(0) == 'setup') {
-    $vars['theme_hook_suggestions'][] = 'setup';
-    drupal_add_css(drupal_get_path('module', 'setup') . '/setup.css');
-
+function setup_preprocess_setup(&$vars) {
+    $vars['title'] = backdrop_get_title();
     // Profile logo.
     $vars['logo'] = NULL;
-    if (file_exists(drupal_get_path('module', $GLOBALS['conf']['install_profile']) . '/logo.png')) {
+    if ($logo_uri = backdrop_get_logo()) {
       $vars['logo'] = theme('image', array(
-        'path' => drupal_get_path('module', $GLOBALS['conf']['install_profile']) . '/logo.png',
+        'uri' => $logo_uri,
         'attributes' => array(
           'id' => 'logo',
         ),
       ));
     }
+    $vars['messages'] = theme('status_messages');
+/*
+   if (arg(0) == 'setup') {
+  $vars['content']['header'] = '';
+  $vars['content']['top'] = '';
+    //$vars['theme_hook_suggestions'][] = 'setup';
+    backdrop_add_css(backdrop_get_path('module', 'setup') . '/setup.css');
+    $install_profile = config_get('system.core', 'install_profile');
+
 
     // Attach the Setup style.
-    $options = setup_options();
-    $styles = setup_styles();
-    if ($options['style'] && in_array($options['style'], array_keys($styles))) {
-      drupal_process_attached(array('#attached' => $styles[$options['style']]));
-    }
-
-    // Hide messages.
-    if (!$options['show_messages']) {
-      drupal_get_messages();
-    }
-  }
+    // $options = setup_options();
+    // $styles = setup_styles();
+    // if ($options['style'] && in_array($options['style'], array_keys($styles))) {
+      // backdrop_process_attached(array('#attached' => $styles[$options['style']]));
+    // }
+  } */
 }
 
 /**
@@ -105,12 +96,14 @@ function setup_menu() {
   $items['setup'] = array(
     'page callback' => 'setup_wizard',
     'access arguments' => array('access setup'),
+    'type' => MENU_CALLBACK,
   );
 
   $items['setup/skip'] = array(
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('setup_skip'),
     'access arguments' => array('defer setup'),
+    'type' => MENU_CALLBACK,
   );
 
   return $items;
@@ -160,7 +153,7 @@ function setup_form_alter(&$form, $form_state, $form_id) {
     $form['setup_enabled'] = array(
       '#type' => 'checkbox',
       '#title' => t('Put site into setup mode'),
-      '#default_value' => variable_get('setup_enabled', FALSE),
+      '#default_value' => config_get('setup.settings', 'setup_enabled'),
       '#weight' => 10,
       '#disabled' => empty($sources),
     );
@@ -169,7 +162,7 @@ function setup_form_alter(&$form, $form_state, $form_id) {
         '#type' => 'select',
         '#title' => t('Setup source'),
         '#options' => $sources,
-        '#default_value' => variable_get('setup_source', 'profile_default'),
+        '#default_value' => config_get('setup.settings', 'setup_source'),
         '#weight' => 11,
         '#states' => array(
           'invisible' => array(
@@ -178,7 +171,15 @@ function setup_form_alter(&$form, $form_state, $form_id) {
         ),
       );
     }
+    $form['#submit'][] = 'setup_set_enabled';
   }
+}
+
+function setup_set_enabled($form, &$form_state) {
+  $config = config('setup.settings');
+  $config->set('setup_enabled', $form_state['values']['setup_enabled']);
+  $config->set('setup_source', $form_state['values']['setup_source']);
+  $config->save();
 }
 
 /**
@@ -187,8 +188,8 @@ function setup_form_alter(&$form, $form_state, $form_id) {
 function setup_wizard() {
   // @TODO - Do this better so that it uses a proper Access Callback and doesn't
   // use the custom theme.
-  if (!setup_enabled() && !user_access('access setup')) {
-    drupal_not_found();
+  if (!setup_enabled() && !user_access('defer setup')) {
+    backdrop_not_found();
     return;
   }
 
@@ -196,6 +197,9 @@ function setup_wizard() {
 
   // Setup object cache.
   $object_id = 'setup_wizard';
+  if (arg(1) == NULL) {
+    setup_cache_clear($object_id);
+  }
   $object = setup_cache_get($object_id);
   $form_state = array(
     'object_id' => $object_id,
@@ -209,12 +213,13 @@ function setup_wizard() {
   // Get Setup options.
   $options = setup_options($source_info);
 
+  
   // Build CTools wizard object.
   $form_info = array(
     'id' => 'setup_wizard',
     'path' => 'setup/%step',
     'show back' => $options['show_back'],
-    'show cancel' => (user_access('defer setup') && $options['show_cancel'] != -1) || $options['show_cancel'] == 1,
+    'show cancel' => user_access('defer setup') || $options['show_cancel'],
     'cancel text' => t('Skip setup'),
     'order' => array(),
     'forms' => array(),
@@ -223,14 +228,14 @@ function setup_wizard() {
     if (isset($hooks_info[$step['type']]['form callback']) && function_exists($hooks_info[$step['type']]['form callback'])) {
       if (arg(1) == $key || (arg(1) == NULL && empty($form_state['setup_step']))) {
         if (isset($step['title'])) {
-          drupal_set_title($step['title']);
+          backdrop_set_title($step['title']);
         }
 
         // Arguments.
         if (isset($step['arguments'])) {
           foreach ($step['arguments'] as $argument => $index) {
             $index = explode('[', str_replace(']', '', $index));
-            $step['arguments'][$argument] = drupal_array_get_nested_value($form_state['object'], $index);
+            $step['arguments'][$argument] = backdrop_array_get_nested_value($form_state['object'], $index);
           }
         }
 
@@ -256,13 +261,13 @@ function setup_wizard() {
 
   // Check if step exists.
   if (!isset($form_state['setup_step'])) {
-    drupal_not_found();
+    backdrop_not_found();
     return;
   }
-
+//config_set('setup.settings', 'setup_enabled', 0);
   // Build CTools wizard form.
-  ctools_include('wizard');
-  $element[] = ctools_wizard_multistep_form($form_info, arg(1), $form_state);
+  // ctools_include('wizard');
+  $element[] = form_wizard_multistep_form($form_info, arg(1), $form_state);
 
   // Steps list.
   if ($options['show_steps']) {
@@ -290,8 +295,20 @@ function setup_wizard() {
       ),
     );
   }
+  
+  //backdrop_add_http_header('Content-Type', 'text/html; charset=utf-8');
+  backdrop_add_css(backdrop_get_path('module', 'setup') . '/setup.css');
+  // Attach the Setup style.
+  $options = setup_options();
+  $styles = setup_styles();
+  if ($options['style'] && in_array($options['style'], array_keys($styles))) {
+    backdrop_process_attached(array('#attached' => $styles[$options['style']]));
+  }
 
-  return $element;
+  $element = render($element);
+  print theme('setup', array('wizard' => $element));
+  exit;
+
 }
 
 /**
@@ -312,7 +329,7 @@ function setup_wizard_next(&$form_state) {
  */
 function setup_wizard_cancel(&$form_state) {
   if (user_access('defer setup')) {
-    drupal_goto('setup/skip');
+    backdrop_goto('setup/skip');
   }
 
   else {
@@ -330,10 +347,6 @@ function setup_wizard_finish(&$form_state) {
   // Invoke Setup wizard Next callback to deal with object cache.
   setup_wizard_next($form_state);
 
-  // Get object from cache.
-  $object_id = 'setup_wizard';
-  $object = setup_cache_get($object_id);
-
   $hooks_info = setup_info();
   $source_info = setup_source_info();
   foreach ($source_info['steps'] as $key => $step) {
@@ -342,40 +355,32 @@ function setup_wizard_finish(&$form_state) {
       if (isset($step['arguments'])) {
         foreach ($step['arguments'] as $argument => $index) {
           $index = explode('[', str_replace(']', '', $index));
-          $step['arguments'][$argument] = drupal_array_get_nested_value($object, $index);
+          $step['arguments'][$argument] = backdrop_array_get_nested_value($form_state['object'], $index);
         }
       }
 
       $step_form_state = array(
-        'values' => isset($object[$key]) ? $object[$key] : array(),
+        'values' => isset($form_state['object'][$key]) ? $form_state['object'][$key] : array(),
         'setup_step' => $step,
       );
       $hooks_info[$step['type']]['finish callback']($step_form_state);
     }
   }
 
-  // Clear object cache.
-  setup_cache_clear($object_id);
-
   // Disable setup run flag.
-  variable_set('setup_enabled', FALSE);
+  config_set('setup.settings', 'setup_enabled', FALSE);
 
   // Get Setup options.
   $options = setup_options($source_info);
 
   // Take site out of maintenance mode.
   if ($options['maintenance_mode']) {
-    variable_set('maintenance_mode', FALSE);
-  }
-
-  // Hide messages.
-  if (!$options['show_messages']) {
-    drupal_get_messages();
+    config_set('system.core', 'maintenance_enabled', 0);
   }
 
   // Display a completion message.
   if ($options['finish_message']) {
-    drupal_set_message($options['finish_message']);
+    backdrop_set_message($options['finish_message']);
   }
 
   // Auto-disable Setup module.
@@ -383,11 +388,8 @@ function setup_wizard_finish(&$form_state) {
     module_disable(array('setup'));
   }
 
-  // Invoke hook_setup_finish.
-  module_invoke_all('setup_finish');
-
   // Redirect back to the homepage.
-  drupal_goto($options['finish_redirect']);
+  backdrop_goto($options['finish_redirect']);
 }
 
 /**
@@ -417,19 +419,19 @@ function setup_skip($form, &$form_state) {
  */
 function setup_skip_submit($form, &$form_state) {
   // Disable setup flag.
-  variable_set('setup_enabled', FALSE);
+  config_set('setup.settings', 'setup_enabled', FALSE);
 
   // Get Setup options.
   $options = setup_options();
 
   // Take site out off maintenance mode.
   if ($options['maintenance_mode']) {
-    variable_set('maintenance_mode', FALSE);
+    config_set('system.core', 'maintenance_enabled', 0);
   }
 
   // Display a cancelation message.
   if ($options['cancel_message']) {
-    drupal_set_message($options['cancel_message']);
+    backdrop_set_message($options['cancel_message']);
   }
 
   // Auto-disable Setup module.
@@ -438,38 +440,38 @@ function setup_skip_submit($form, &$form_state) {
   }
 
   // Redirect back to the homepage.
-  drupal_goto($options['cancel_redirect']);
+  backdrop_goto($options['cancel_redirect']);
 }
 
 /**
  * Cache helper; Set object cache.
  */
 function setup_cache_set($object_id, $object) {
-  ctools_include('object-cache');
-  ctools_object_cache_set('setup', $object_id, $object);
+  //ctools_include('object-cache');
+  tempstore_set('setup', $object_id, $object, REQUEST_TIME + 3600);
 }
 
 /**
  * Cache helper; Get object cache.
  */
 function setup_cache_get($object_id) {
-  ctools_include('object-cache');
-  return ctools_object_cache_get('setup', $object_id);
+  //ctools_include('object-cache');
+  return tempstore_get('setup', $object_id);
 }
 
 /**
  * Cache helper; Clear object cache.
  */
 function setup_cache_clear($object_id) {
-  ctools_include('object-cache');
-  ctools_object_cache_clear('setup', $object_id);
+  //ctools_include('object-cache');
+  tempstore_clear('setup', $object_id);
 }
 
 /**
  * Helper function; Returns all implementations of hook_setup_info().
  */
 function setup_info() {
-  $info = &drupal_static(__FUNCTION__);
+  $info = &backdrop_static(__FUNCTION__);
   if (empty($info)) {
     $info = module_invoke_all('setup_info');
   }
@@ -480,7 +482,7 @@ function setup_info() {
  * Helper function; Returns all implementations of hook_setup_styles().
  */
 function setup_styles() {
-  $styles = &drupal_static(__FUNCTION__);
+  $styles = &backdrop_static(__FUNCTION__);
   if (empty($styles)) {
     $styles = module_invoke_all('setup_styles');
   }
@@ -491,11 +493,12 @@ function setup_styles() {
  * Helper function; Returns all available sources.
  */
 function setup_sources($grouped = FALSE) {
-  $sources = &drupal_static(__FUNCTION__, array());
+  $sources = &backdrop_static(__FUNCTION__, array());
+  $install_profile = config_get('system.core', 'install_profile');
 
   if (empty($sources)) {
     // Install profile option.
-    $profile_info = system_get_info('module', $GLOBALS['conf']['install_profile']);
+    $profile_info = system_get_info('module', $install_profile);
     if (isset($profile_info['setup'])) {
       $sources[t('Install profiles')] = array(
         'profile' => $profile_info['name'],
@@ -505,7 +508,7 @@ function setup_sources($grouped = FALSE) {
     // Module options.
     $modules = system_get_info('module');
     foreach ($modules as $module => $info) {
-      if ($module !== $GLOBALS['conf']['install_profile'] && isset($info['setup'])) {
+      if ($module !== $install_profile && isset($info['setup'])) {
         $sources[t('Modules')] = isset($sources[t('Modules')]) ? $sources[t('Modules')] : array();
         $sources[t('Modules')]["module-{$module}"] = $info['name'];
       }
@@ -517,7 +520,7 @@ function setup_sources($grouped = FALSE) {
       if (isset($info['setup'])) {
         $sources[t('Themes')] = isset($sources[t('Themes')]) ? $sources[t('Themes')] : array();
         $sources[t('Themes')]["theme-{$theme}"] = $info['name'];
-        if (variable_get('theme_default', NULL) == $theme) {
+        if (config_get('system.core', 'theme_default') == $theme) {
           $sources[t('Themes')] = array_merge(array('theme-default' => t('Default')), $sources[t('Themes')]);
         }
       }
@@ -541,14 +544,11 @@ function setup_sources($grouped = FALSE) {
 /**
  * Helper function; Returns setup info from current source.
  */
-function setup_source_info($source = NULL) {
-  $source = explode('-', is_null($source) ? variable_get('setup_source', 'profile') : $source);
+function setup_source_info() {
+  $source = explode('-', config_get('setup.settings', 'setup_source'));
   switch ($source[0]) {
     case 'profile':
-      $info = system_get_info('module', $GLOBALS['conf']['install_profile']);
-      if (!isset($info['setup'])) {
-        return FALSE;
-      }
+      $info = system_get_info('module', config_get('system.core', 'install_profile'));
       $info = $info['setup'];
       break;
 
@@ -557,18 +557,12 @@ function setup_source_info($source = NULL) {
         return FALSE;
       }
       $info = system_get_info('module', $source[1]);
-      if (!isset($info['setup'])) {
-        return FALSE;
-      }
       $info = $info['setup'];
       break;
 
     case 'theme':
-      $source[1] = !isset($source[1]) || $source[1] == 'default' ? variable_get('theme_default', NULL) : $source[1];
+      $source[1] = !isset($source[1]) || $source[1] == 'default' ? config_get('system.core', 'theme_default') : $source[1];
       $info = system_get_info('theme', $source[1]);
-      if (!isset($info['setup'])) {
-        return FALSE;
-      }
       $info = $info['setup'];
       break;
 
@@ -576,34 +570,14 @@ function setup_source_info($source = NULL) {
       $info = module_invoke_all('setup_source_info', $source);
   }
 
-  if (!empty($info)) {
-    _setup_source_info_token_replace($info);
-    return $info;
-  }
-  return FALSE;
-}
-
-/**
- * Recursively run token_replace() on $info.
- */
-function _setup_source_info_token_replace(&$info) {
-  switch (TRUE) {
-    case is_array($info):
-      foreach (element_children($info) as $child) {
-        _setup_source_info_token_replace($info[$child]);
-      }
-      break;
-
-    default:
-      $info = token_replace($info);
-  }
+  return !empty($info) ? $info : FALSE;
 }
 
 /**
  * Helper function; Check if setup is enabled.
  */
 function setup_enabled() {
-  if (variable_get('setup_enabled', TRUE)) {
+  if (config_get('setup.settings', 'setup_enabled')) {
     return TRUE;
   }
 
@@ -617,13 +591,13 @@ function setup_enabled() {
 /**
  * Helper function; Returns Setup options.
  */
-function setup_options($info = array(), $source = NULL) {
-  $options = &drupal_static(__FUNCTION__);
+function setup_options($info = array()) {
+  $options = &backdrop_static(__FUNCTION__);
 
   if (empty($options)) {
     // Load profile info if info not supplied.
     if (empty($info)) {
-      $info = setup_source_info($source);
+      $info = setup_source_info();
     }
 
     // Set default options.
@@ -638,8 +612,7 @@ function setup_options($info = array(), $source = NULL) {
       'show_back' => TRUE,
       'show_cancel' => TRUE,
       'show_steps' => TRUE,
-      'show_messages' => TRUE,
-      'style' => 'drupalsetup',
+      'style' => 'backdropsetup',
       'style_override' => 'theme',
     );
 
@@ -656,8 +629,9 @@ function setup_options($info = array(), $source = NULL) {
  * Access checks for setup_init() redirect.
  */
 function setup_init_access() {
+  $install_profile = config_get('system.core', 'install_profile');
   // Prevent setup from triggering during site installation.
-  if (empty($GLOBALS['conf']['install_profile'])) {
+  if (empty(config_get('system.core', 'install_profile'))) {
     return FALSE;
   }
 
@@ -684,3 +658,16 @@ function setup_init_access() {
 
   return TRUE;
 }
+
+/**
+ * Implements hook_config_info().
+ */
+function setup_config_info()
+{
+  $prefixes['setup.settings'] = array(
+    'label' => t('Setup settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+

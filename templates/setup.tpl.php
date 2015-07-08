@@ -1,9 +1,19 @@
 <?php
 /**
  * @file
- * Setup's module implementation to display a single Drupal page.
+ * Setup's module implementation to display a single Backdrop page.
  */
 ?>
+<!DOCTYPE html>
+<html<?php print backdrop_attributes(array()); ?>>
+
+<head>
+  <?php print backdrop_get_html_head(); ?>
+  <title><?php print $title; ?></title>
+  <?php print backdrop_get_css(); ?>
+  <?php print backdrop_get_js(); ?>
+</head>
+<body class="<?php print implode(' ', $classes); ?>">
 <div id='page'>
   <div id='branding'>
     <?php if (isset($logo)) : ?>
@@ -17,6 +27,10 @@
 
   <div id='content'>
     <?php if (isset($messages)) { echo $messages; } ?>
-    <?php echo render($page['content']) ?>
+    <?php 
+    //$page_content = $variables['page'];
+    echo render($wizard); ?>
   </div>
-</div>
+-</div>
+</body>
+</html>

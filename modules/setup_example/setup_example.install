@@ -8,13 +8,16 @@
  * Implements hook_install().
  */
 function setup_example_install() {
+  $config = config('setup.settings');
+  
   // The 'setup_enabled' variable needs to be set to TRUE in some fashion before
   // the setup module will be invoked. In most cases it will be done
   // programatically (like this example) during the installation or upgrade of a
   // module or installation profile.
-  variable_set('setup_enabled', TRUE);
+  $config->set('setup_enabled', TRUE);
 
   // The 'setup_source' variable needs to be set to the relevant source, in this
   // case it is this module.
-  variable_set('setup_source', 'module-setup_example');
+  $config->set('setup_source', 'module-setup_example');
+  $config->save();
 }

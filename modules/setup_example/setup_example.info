@@ -1,11 +1,16 @@
 name = Setup example
 description = Example of the Setup module.
-core = 7.x
+backdrop = 1.x
+type = module
 dependencies[] = setup
 
 ; Setup wizard
-setup[options][theme] = seven
 setup[options][finish_message] = Setup Example is complete.
+
+setup[steps][blog_posts][type] = node_edit
+setup[steps][blog_posts][title] = Blog posts
+setup[steps][blog_posts][nid] = 1
+setup[steps][blog_posts][view_mode] = full
 
 setup[steps][intro][type] = markup
 setup[steps][intro][title] = Introduction
@@ -21,13 +26,16 @@ setup[steps][theme][type] = theme
 setup[steps][theme][title] = Theme example
 setup[steps][theme][options][] = bartik
 setup[steps][theme][options][] = seven
-setup[steps][theme][help][markup] = <h2>Theme example</h2><p>The <strong>theme</strong> type allows for the client/user to set the site theme based on the available options.</p><p><strong>Note:</strong> If the <a href="http://drupal.org/project/libraries">Libraries module</a> is enabled and you have the <a href="http://jquery.malsup.com/cycle/">jQuery Cycle library</a> downloaded you will get a better theme chooser.</p><code style="display:block; font-size: 1em; padding-left: 2em;">setup[steps][theme][type] = theme<br />setup[steps][theme][title] = Title<br />setup[steps][theme][options][] = bartik<br />setup[steps][theme][options][] = seven<br />setup[steps][theme][help][markup] = &lt;h3&gt;This is where help HTML goes&lt;/h3&gt;<br />setup[steps][theme][help][format] = full_html</code>
+setup[steps][theme][help][markup] = <h2>Theme example</h2><p>The <strong>theme</strong> type allows for the client/user to set the site theme based on the available options.</p><p><strong>Note:</strong> If the <a href="http://backdrop.org/project/libraries">Libraries module</a> is enabled and you have the <a href="http://jquery.malsup.com/cycle/">jQuery Cycle library</a> downloaded you will get a better theme chooser.</p><code style="display:block; font-size: 1em; padding-left: 2em;">setup[steps][theme][type] = theme<br />setup[steps][theme][title] = Title<br />setup[steps][theme][options][] = bartik<br />setup[steps][theme][options][] = seven<br />setup[steps][theme][help][markup] = &lt;h3&gt;This is where help HTML goes&lt;/h3&gt;<br />setup[steps][theme][help][format] = full_html</code>
 setup[steps][theme][help][filter] = full_html
 
 setup[steps][variable_set][type] = variable_set
 setup[steps][variable_set][title] = Variable set example
 setup[steps][variable_set][variables][site_name][title] = Site name
 setup[steps][variable_set][variables][site_name][required] = 1
+setup[steps][variable_set][variables][site_name][config] = system.core
 setup[steps][variable_set][variables][maintenance_mode][title] = Maintenance mode
-setup[steps][variable_set][help][markup] = <h2>Variable set example</h2><p>The <strong>variable_set</strong> type allows for the client/user to set the value of defined variables.</p><p>The full FAPI object should be supplied for the variable form items, however just the title can be used for a plain textfield.</p><p><strong>Note:</strong> If the <a href="http://drupal.org/project/variable">Variable module</a> is enabled, certain variables defaults (like the 'Maintenance mode' variable below) may be automatically included on your behalf.</p><code style="display:block; font-size: 1em; padding-left: 2em;">setup[steps][variable_set][type] = variable_set<br />setup[steps][variable_set][title] = Title<br />setup[steps][variable_set][variables][site_name][title] = Site name<br />setup[steps][variable_set][variables][site_name][required] = 1<br />setup[steps][variable_set][help][markup] = &lt;h3&gt;This is where help HTML goes&lt;/h3&gt;<br />setup[steps][variable_set][help][format] = full_html</code>
+setup[steps][variable_set][variables][maintenance_mode][config] = system.core
+setup[steps][variable_set][help][markup] = <h2>Variable set example</h2><p>The <strong>variable_set</strong> type allows for the client/user to set the value of defined variables.</p><p>The full FAPI object should be supplied for the variable form items, however just the title can be used for a plain textfield.</p><code style="display:block; font-size: 1em; padding-left: 2em;">setup[steps][variable_set][type] = variable_set<br />setup[steps][variable_set][title] = Title<br />setup[steps][variable_set][variables][site_name][title] = Site name<br />setup[steps][variable_set][variables][site_name][required] = 1<br />setup[steps][variable_set][variables][site_name][config] = system.core<br />setup[steps][variable_set][help][markup] = &lt;h3&gt;This is where help HTML goes&lt;/h3&gt;<br />setup[steps][variable_set][help][format] = full_html</code>
 setup[steps][variable_set][help][filter] = full_html
+

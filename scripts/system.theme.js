@@ -1,5 +1,5 @@
 (function($) {
-  Drupal.behaviors.setupSystemTheme = {
+  Backdrop.behaviors.setupSystemTheme = {
     attach: function(context) {
       // Create and pause jQuery Cycle object.
       $('#edit-theme').addClass('jquery-cycle').cycle({

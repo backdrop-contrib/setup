@@ -47,23 +47,20 @@ function hook_setup_info() {
  *
  * @return array
  *  An array of Setup styles, keyed by the style name, contains keys as per the
- *  FAPI #attached element, with the addition of the #name key.
+ *  FAPI #attached element.
  */
 function hook_setup_styles() {
   $styles = array();
 
-  // Drupal install.php inspired style.
-  $styles['drupalsetup'] = array(
-    '#name' => t('DrupalSetup'),
+  // Backdrop install.php inspired style.
+  $styles['backdropsetup'] = array(
     'css' => array(
-      drupal_get_path('module', 'setup') . '/styles/drupalsetup/drupalsetup.css',
+      backdrop_get_path('module', 'setup') . '/styles/backdropsetup/backdropsetup.css',
     ),
   );
 
   // Empty style.
-  $styles['none'] = array(
-    '#name' => t('- None -'),
-  );
+  $styles['none'] = array();
 
   return $styles;
 }
