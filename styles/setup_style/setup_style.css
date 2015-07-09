@@ -1,0 +1,122 @@
+/* Setup theming */
+
+.setup-page {
+  padding: 20px; /* LTR */
+}
+
+
+#branding {
+  overflow: hidden;
+  padding: 20px 20px 0 20px; /* LTR */
+  position: relative;
+}
+
+#content {
+  clear: none;
+  margin: 0 auto;
+  padding: 2em 20px 0 300px;
+  position: relative;
+}
+
+#content form {
+  position: relative;
+}
+
+#content form fieldset {
+  border: 1px solid #CCC;
+  margin: 1em 0;
+  padding: 2.5em 0 0 0;
+  position: relative;
+}
+
+#content form fieldset legend {
+  font-weight: bold;
+}
+
+#content form fieldset legend .fieldset-legend {
+  margin-top: 0.5em;
+  padding-left: 15px;
+  position: absolute;
+  text-transform: uppercase;
+}
+
+#content form fieldset .fieldset-wrapper {
+  padding: 0 13px 13px 15px;
+}
+
+#content form .form-item label {
+  color: #333;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", sans-serif !important;
+  font-weight: bold;
+}
+
+#content form .form-item .description {
+  color: #666;
+  font-size: 0.9231em;
+  line-height: 1.1667em;
+  margin: 5px 0;
+}
+
+input.form-autocomplete, input.form-text, input.form-file, textarea.form-textarea, select.form-select {
+}
+
+#content form .form-submit {
+}
+
+#content form #edit-cancel {
+  float: right;
+}
+
+.page-setup-skip #content form #edit-cancel {
+}
+
+
+#content form #cycle-nav {
+  height: 219px;
+  position: absolute;
+  top: 0;
+  width: 550px;
+}
+
+#content form #cycle-prev,
+#content form #cycle-next {
+  background-image: url('images/task-item-rtl.png');
+  background-position: 6px 105px;
+  background-repeat: no-repeat;
+  float: left;
+  height: 219px;
+  width: 20px;
+}
+
+#content form #cycle-next {
+  background-image: url('images/task-item.png');
+  float: right;
+}
+
+#steps {
+  left: 0;
+  list-style-type: none;
+  list-style-image: none;
+  margin: 0 0 0.25em 0;
+  padding-top: 127px;
+  position: absolute;
+  top: 0;
+}
+
+#steps li {
+  color: #ADADAD;
+  padding: 0.5em 1em 0.5em 20px;
+  margin: 0;
+  list-style: none;
+}
+
+#steps li.active {
+  background: transparent url('images/task-item.png') no-repeat 3px 50%;
+  color: #000;
+  font-weight: bold;
+}
+
+#steps li.done {
+  background: transparent url('images/task-check.png') no-repeat 0 50%;
+  color: green;
+}

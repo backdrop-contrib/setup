@@ -1,33 +1,73 @@
-form #edit-cancel {
-  background: none;
-  border: none;
-  border-radius: 0;
+#system-setup-theme-form-callback .form-type-radios {
+  width: 100%;
 }
-
-form #edit-cancel:active,
-form #edit-cancel:focus,
-form #edit-cancel:hover {
-  cursor: pointer;
-  text-decoration: underline;
+#system-setup-theme-form-callback .form-radios {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap; /* Required for current Safari */
+  flex-wrap: wrap;
+  line-height: 1.3;
+  max-width: calc(100vw - 60px); /* Fix flex-wrap issue in some browsers */
 }
-
-form#system-setup-theme-form-callback #edit-theme {
-  height: 290px;
-  overflow-x: auto;
-  overflow-y: hidden;
+#system-setup-theme-form-callback.no-flexbox .form-radios {
+  display: block;
+}
+#system-setup-theme-form-callback .form-type-radio {
+  margin: 0 5px 5px 0;
+  padding: 0;
   text-align: center;
-  white-space: nowrap;
 }
-
-form#system-setup-theme-form-callback #edit-theme .form-item-theme {
-  display: inline-block;
-  margin: 10px;
-  position: relative;
-  zoom: 1;
+#system-setup-theme-form-callback.no-flexbox .form-type-radio {
+  float: left;
 }
-
-form#system-setup-theme-form-callback #edit-theme .form-item-theme input {
-  left: 5px;
+/**
+ * Pretty block radios, `:not(#foo) >` rules out browsers that can't support this
+ */
+:not(#foo) > #system-setup-theme-form-callback .form-type-radio input {
+  /* Hide radios from visuals but not screen-readers */
   position: absolute;
-  top: 5px;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+#system-setup-theme-form-callback .form-type-radio label {
+  position: relative;
+  z-index: 2; /* Fix IE issue clicking on image doesn't trigger radio */
+  display: block;
+  padding: .6em;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  min-height: 145px;
+  -webkit-transition: border-color 0.25s ease-in-out, background-color 0.25s ease-in-out;
+  -moz-transition: border-color 0.25s ease-in-out, background-color 0.25s ease-in-out;
+  -ms-transition: border-color 0.25s ease-in-out, background-color 0.25s ease-in-out;
+  -o-transition: border-color 0.25s ease-in-out, background-color 0.25s ease-in-out;
+  will-change: border-color, background-color;
+}
+
+#system-setup-theme-form-callback.no-flexbox .form-type-radio label {
+  min-height: 150px;
+}
+
+#system-setup-theme-form-callback .form-type-radio:focus label,
+#system-setup-theme-form-callback .form-type-radio:active label,
+#system-setup-theme-form-callback .form-type-radio:hover label {
+  border-color: #d0d0d0;
+}
+#system-setup-theme-form-callback .form-type-radio input:checked + label {
+  border-color: #CFDE56;
+  background: #E9EEBC;
+}
+#system-setup-theme-form-callback .form-type-radio img {
+  position: relative;
+  z-index: -1; /* Fix IE issue clicking on image doesn't trigger radio */
+  padding: 4px;
+  border-radius: 4px;
+  background: #ffffff;
 }

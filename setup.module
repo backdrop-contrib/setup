@@ -56,36 +56,33 @@ function setup_theme($existing, $type, $theme, $path) {
 /**
  * Implements hook_preprocess_page().
  */
-function setup_preprocess_setup(&$vars) {
-    $vars['title'] = backdrop_get_title();
-    // Profile logo.
-    $vars['logo'] = NULL;
-    if ($logo_uri = backdrop_get_logo()) {
-      $vars['logo'] = theme('image', array(
-        'uri' => $logo_uri,
-        'attributes' => array(
-          'id' => 'logo',
-        ),
-      ));
-    }
-    $vars['messages'] = theme('status_messages');
-/*
-   if (arg(0) == 'setup') {
-  $vars['content']['header'] = '';
-  $vars['content']['top'] = '';
-    //$vars['theme_hook_suggestions'][] = 'setup';
-    backdrop_add_css(backdrop_get_path('module', 'setup') . '/setup.css');
-    $install_profile = config_get('system.core', 'install_profile');
-
-
-    // Attach the Setup style.
-    // $options = setup_options();
-    // $styles = setup_styles();
-    // if ($options['style'] && in_array($options['style'], array_keys($styles))) {
-      // backdrop_process_attached(array('#attached' => $styles[$options['style']]));
-    // }
-  } */
-}
+function setup_preprocess_layout(&$vars) {
+  if(arg(0) == 'setup') {
+  admin_bar_suppress();
+  //dpm($vars);
+  }
+  backdrop_add_css(backdrop_get_path('module', 'setup') . '/setup.css', array('group' => CSS_DEFAULT));
+  backdrop_add_js(backdrop_get_path('module', 'setup') . '/setup.js');
+   // Attach the Setup style.
+  $options = setup_options();
+  $styles = setup_styles();
+  if ($options['style'] && in_array($options['style'], array_keys($styles))) {
+    backdrop_add_css($styles[$options['style']]['css'][0], array('group' => CSS_DEFAULT));
+    //backdrop_process_attached(array('#attached' => $styles[$options['style']]));
+  }
+/*   $vars['title'] = backdrop_get_title();
+  // Profile logo.
+  $vars['logo'] = NULL;
+  if ($logo_uri = backdrop_get_logo()) {
+    $vars['logo'] = theme('image', array(
+      'uri' => $logo_uri,
+      'attributes' => array(
+        'id' => 'logo',
+      ),
+    ));
+  }
+  $vars['messages'] = theme('status_messages');
+ */}
 
 /**
  * Implements hook_menu().
@@ -264,9 +261,7 @@ function setup_wizard() {
     backdrop_not_found();
     return;
   }
-//config_set('setup.settings', 'setup_enabled', 0);
   // Build CTools wizard form.
-  // ctools_include('wizard');
   $element[] = form_wizard_multistep_form($form_info, arg(1), $form_state);
 
   // Steps list.
@@ -295,22 +290,18 @@ function setup_wizard() {
       ),
     );
   }
-  
-  //backdrop_add_http_header('Content-Type', 'text/html; charset=utf-8');
-  backdrop_add_css(backdrop_get_path('module', 'setup') . '/setup.css');
-  // Attach the Setup style.
-  $options = setup_options();
-  $styles = setup_styles();
-  if ($options['style'] && in_array($options['style'], array_keys($styles))) {
-    backdrop_process_attached(array('#attached' => $styles[$options['style']]));
-  }
 
   $element = render($element);
-  print theme('setup', array('wizard' => $element));
-  exit;
-
+  return theme('setup', array('wizard' => $element));
 }
 
+function setup_admin_paths() {
+  $paths = array(
+    'setup/*' => TRUE,
+    'setup/skip' => TRUE,
+  );
+  return $paths;
+}
 /**
  * Next callback for Setup wizard form.
  */
@@ -612,7 +603,7 @@ function setup_options($info = array()) {
       'show_back' => TRUE,
       'show_cancel' => TRUE,
       'show_steps' => TRUE,
-      'style' => 'backdropsetup',
+      'style' => 'setup_style',
       'style_override' => 'theme',
     );
 

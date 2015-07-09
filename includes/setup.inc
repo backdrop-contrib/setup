@@ -10,10 +10,9 @@
 function setup_setup_styles() {
   $styles = array();
 
-  // Backdrop install.php inspired style.
-  $styles['backdropsetup'] = array(
+  $styles['setup_style'] = array(
     'css' => array(
-      backdrop_get_path('module', 'setup') . '/styles/setup/setup.css',
+      backdrop_get_path('module', 'setup') . '/styles/setup_style/setup_style.css',
     ),
   );
 
