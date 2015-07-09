@@ -7,11 +7,6 @@ dependencies[] = setup
 ; Setup wizard
 setup[options][finish_message] = Setup Example is complete.
 
-setup[steps][blog_posts][type] = node_edit
-setup[steps][blog_posts][title] = Blog posts
-setup[steps][blog_posts][nid] = 1
-setup[steps][blog_posts][view_mode] = full
-
 setup[steps][intro][type] = markup
 setup[steps][intro][title] = Introduction
 setup[steps][intro][markup] = <h2>Welcome to the Setup example</h2><p>The Setup module allows developers to create a first-run, setup wizard.</p><p>Out of the box the module supports the following different step types:</p><dl><dt><strong>markup</strong></dt><dd>Basic HTML markup page(s).</dd><dt><strong>theme</strong></dt><dd>Select the site theme.</dd><dt><strong>variable_set</strong></dt><dd>Provide form items to set defined variables.</dd></dl>
