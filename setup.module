@@ -44,7 +44,6 @@ function setup_theme($existing, $type, $theme, $path) {
   $items['setup'] = array(
     'template' => 'templates/setup',
     'variables' => array('wizard' => NULL),
-    //'path' => backdrop_get_path('module', 'setup') . '/templates',
   );
 
   // Allow other modules to modify theme items.
@@ -56,10 +55,9 @@ function setup_theme($existing, $type, $theme, $path) {
 /**
  * Implements hook_preprocess_page().
  */
-function setup_preprocess_layout(&$vars) {
+function setup_preprocess_layout(&$variables) {
   if(arg(0) == 'setup') {
-  admin_bar_suppress();
-  //dpm($vars);
+    admin_bar_suppress();
   }
   backdrop_add_css(backdrop_get_path('module', 'setup') . '/setup.css', array('group' => CSS_DEFAULT));
   backdrop_add_js(backdrop_get_path('module', 'setup') . '/setup.js');
@@ -67,22 +65,9 @@ function setup_preprocess_layout(&$vars) {
   $options = setup_options();
   $styles = setup_styles();
   if ($options['style'] && in_array($options['style'], array_keys($styles))) {
-    backdrop_add_css($styles[$options['style']]['css'][0], array('group' => CSS_DEFAULT));
-    //backdrop_process_attached(array('#attached' => $styles[$options['style']]));
+    backdrop_process_attached(array('#attached' => $styles[$options['style']]));
   }
-/*   $vars['title'] = backdrop_get_title();
-  // Profile logo.
-  $vars['logo'] = NULL;
-  if ($logo_uri = backdrop_get_logo()) {
-    $vars['logo'] = theme('image', array(
-      'uri' => $logo_uri,
-      'attributes' => array(
-        'id' => 'logo',
-      ),
-    ));
-  }
-  $vars['messages'] = theme('status_messages');
- */}
+}
 
 /**
  * Implements hook_menu().
@@ -183,8 +168,6 @@ function setup_set_enabled($form, &$form_state) {
  * Page callback for Setup wizard.
  */
 function setup_wizard() {
-  // @TODO - Do this better so that it uses a proper Access Callback and doesn't
-  // use the custom theme.
   if (!setup_enabled() && !user_access('defer setup')) {
     backdrop_not_found();
     return;
@@ -211,7 +194,7 @@ function setup_wizard() {
   $options = setup_options($source_info);
 
   
-  // Build CTools wizard object.
+  // Build Form Wizard object.
   $form_info = array(
     'id' => 'setup_wizard',
     'path' => 'setup/%step',
@@ -248,7 +231,7 @@ function setup_wizard() {
         $form_state['setup_step'] = $step;
       }
 
-      // Set CTools wizard values.
+      // Set Form Wizard values.
       $form_info['order'][$key] = isset($step['title']) ? $step['title'] : $key;
       $form_info['forms'][$key] = array(
         'form id' => $hooks_info[$step['type']]['form callback'],
@@ -261,7 +244,7 @@ function setup_wizard() {
     backdrop_not_found();
     return;
   }
-  // Build CTools wizard form.
+  // Build Form Wizard form.
   $element[] = form_wizard_multistep_form($form_info, arg(1), $form_state);
 
   // Steps list.
@@ -295,6 +278,9 @@ function setup_wizard() {
   return theme('setup', array('wizard' => $element));
 }
 
+/**
+ * Implements hook_admin_paths().
+ */
 function setup_admin_paths() {
   $paths = array(
     'setup/*' => TRUE,
@@ -302,6 +288,7 @@ function setup_admin_paths() {
   );
   return $paths;
 }
+
 /**
  * Next callback for Setup wizard form.
  */
@@ -438,7 +425,6 @@ function setup_skip_submit($form, &$form_state) {
  * Cache helper; Set object cache.
  */
 function setup_cache_set($object_id, $object) {
-  //ctools_include('object-cache');
   tempstore_set('setup', $object_id, $object, REQUEST_TIME + 3600);
 }
 
@@ -446,7 +432,6 @@ function setup_cache_set($object_id, $object) {
  * Cache helper; Get object cache.
  */
 function setup_cache_get($object_id) {
-  //ctools_include('object-cache');
   return tempstore_get('setup', $object_id);
 }
 
@@ -454,7 +439,6 @@ function setup_cache_get($object_id) {
  * Cache helper; Clear object cache.
  */
 function setup_cache_clear($object_id) {
-  //ctools_include('object-cache');
   tempstore_clear('setup', $object_id);
 }
 
