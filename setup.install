@@ -5,9 +5,15 @@
  */
 
 /**
- * Implements hook_uninstall().
+ * Converts Setup settings to config.
  */
-function setup_uninstal() {
-  variable_del('setup_enabled');
-  variable_del('setup_source');
+function setup_update_1000() {
+  $config = config('setup.settings');
+  $config->set('setup_enabled', update_variable_get('setup_enabled', FALSE));
+  $config->set('setup_source', update_variable_get('setup_source', 'profile'));
+  $config->save();
+
+  update_variable_del('setup_enabled');
+  update_variable_del('setup_source');
 }
+

@@ -33,7 +33,7 @@ function user_setup_user_register_form_callback($form, &$form_state) {
     'method' => 'post',
     'rebuild' => FALSE,
   );
-  $form = array_merge_recursive(drupal_retrieve_form($form_id, $user_register_form_state), $form);
+  $form = array_merge_recursive(backdrop_retrieve_form($form_id, $user_register_form_state), $form);
 
   // Unset undesired elements and attributes.
   unset($form['actions'], $form['#form_id']);
@@ -44,8 +44,8 @@ function user_setup_user_register_form_callback($form, &$form_state) {
   if (isset($form_state['setup_step']['hide']) && is_array($form_state['setup_step']['hide'])) {
     foreach ($form_state['setup_step']['hide'] as $key) {
       $parents = explode('[', str_replace(']', '', $key));
-      if (drupal_array_nested_key_exists($form, $parents)) {
-        $element =& drupal_array_get_nested_value($form, $parents);
+      if (backdrop_array_nested_key_exists($form, $parents)) {
+        $element =& backdrop_array_get_nested_value($form, $parents);
         $element['#access'] = FALSE;
       }
     }
